@@ -4,6 +4,7 @@ from sklearn import metrics
 from scipy.spatial import distance
 from sklearn.cluster import KMeans
 import numpy as np
+from sklearn.neighbors import DistanceMetric
 
 def PegaDados():
     dados = np.loadtxt("cancer.data", delimiter=",") # pega o dataset
@@ -24,26 +25,37 @@ def PegaDados():
     
     return dados, label
 
-def k_means(dados):
-    kmeans = KMeans(n_clusters = 1, random_state = 0).fit(dados)
+def k_means(dados,n):
+    kmeans = KMeans(n_clusters = n, random_state = 0).fit(dados)
 
     return kmeans
 
 def separa_normais(dados, labels):
     benignos = []
-
+    t = 0
     for i in range(0, dados.shape[0]):
         if(labels[i] == 0):
             benignos.append(dados[i])
+            t += 1
         
-    return benignos
+    return benignos, t
 
 def main():
     dados, labels = PegaDados()
-    benignos = separa_normais(dados, labels)
-    kmeans = k_means(benignos)
+    benignos, t = separa_normais(dados, labels)
+    kmeans = k_means(benignos,1)
     print(kmeans.labels_)
+    centro = kmeans.cluster_centers_
+    print("\ncentro:\n",centro)
+    benignos = np.asarray(benignos)
+    #linhas = benignos
+    #print("linhas: ",linhas)
+    dist = DistanceMetric.get_metric('euclidean')
+    print("\n\n\n",sum(dist.pairwise(benignos,centro))/benignos.shape[0])
 
+
+
+    
     
 
 
