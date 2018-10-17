@@ -68,10 +68,4 @@ def main():
 
     print("acuracia: ",acuracia, "\nConfusao: \n", confusao,"\nBenignos: ",confusao[0][0]/(confusao[0][0]+confusao[0][1]),"\nMalignos: ",confusao[1][1]/(confusao[1][0]+confusao[1][1]))
 
-
-
-    
-    
-
-
 main()
