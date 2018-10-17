@@ -5,6 +5,7 @@ from scipy.spatial import distance
 from sklearn.cluster import KMeans
 import numpy as np
 from sklearn.neighbors import DistanceMetric
+from sklearn.metrics import confusion_matrix
 
 def PegaDados():
     dados = np.loadtxt("cancer.data", delimiter=",") # pega o dataset
@@ -44,14 +45,28 @@ def main():
     dados, labels = PegaDados()
     benignos, t = separa_normais(dados, labels)
     kmeans = k_means(benignos,1)
-    print(kmeans.labels_)
     centro = kmeans.cluster_centers_
-    print("\ncentro:\n",centro)
     benignos = np.asarray(benignos)
     #linhas = benignos
     #print("linhas: ",linhas)
+
     dist = DistanceMetric.get_metric('euclidean')
-    print("\n\n\n",sum(dist.pairwise(benignos,centro))/benignos.shape[0])
+    dist_media = sum(dist.pairwise(benignos,centro))/benignos.shape[0]
+
+    distancia = dist.pairwise(dados,centro)
+    rotulos = distancia
+    for i in range(np.asarray(distancia).shape[0]):
+        if(distancia[i] > dist_media):
+            rotulos[i] = 1
+        else:
+            rotulos[i] = 0
+
+    rotulos = np.asarray(rotulos).reshape((rotulos.shape[0])).astype(int)
+    
+    acuracia = np.sum(labels == rotulos)/labels.shape[0]
+    confusao = confusion_matrix(labels.ravel(), rotulos)
+
+    print("acuracia: ",acuracia, "\nConfusao: \n", confusao,"\nBenignos: ",confusao[0][0]/(confusao[0][0]+confusao[0][1]),"\nMalignos: ",confusao[1][1]/(confusao[1][0]+confusao[1][1]))
 
 
 
