@@ -12,15 +12,7 @@ def distancia(dados, ponto):
     dist = modelo.pairwise(dados, ponto)
     return dist
 
-def Menor_dist(dados, ponto):
-    dist = distancia(dados, ponto)
-    dist_menor = 1000000
-    for i in dist:
-        if i < dist_menor:
-            dist_menor = i
-    return dist_menor
-
-def dist_visinhos(dados, ponto, k):
+def pertence_class(dados, ponto, k=3):
 
     dist = distancia(dados, ponto)
     posicao = np.zeros(dist.shape[0]*dist.shape[1]).reshape(dist.shape[0],dist.shape[1])
@@ -40,11 +32,6 @@ def dist_visinhos(dados, ponto, k):
     if dist_pont[0] <= dist_media:
         return True
     return False
-    
-
-
-    
-
 
 
 def PegaDados():
@@ -107,7 +94,23 @@ def main():
     acuracia = np.sum(labels == rotulos)/labels.shape[0]
     confusao = confusion_matrix(labels.ravel(), rotulos)
 
+    print("\n------MÉDIA-TOTAL------\n")
+
     print("acuracia: ",acuracia, "\nConfusao: \n", confusao,"\nBenignos: ",confusao[0][0]/(confusao[0][0]+confusao[0][1]),"\nMalignos: ",confusao[1][1]/(confusao[1][0]+confusao[1][1]))
-    dist_visinhos(dados, dados[6].reshape(1,30), 3)
+    rotulo2 = []
+    for i in range(0,dados.shape[0]):
+        if(pertence_class(benignos, dados[i].reshape(1,30), 3)):
+            rotulo2.append(0)
+        else:
+            rotulo2.append(1)
+    
+    print("\n------K-VIZINHOS------\n")
+
+    rotulo2 = np.asarray(rotulo2).reshape((labels.shape[0])).astype(int)
+    
+    acuracia = np.sum(labels == rotulo2)/labels.shape[0]
+    confusao = confusion_matrix(labels.ravel(), rotulo2)
+
+    print("acuracia: ",acuracia, "\nConfusao: \n", confusao,"\nBenignos: ",confusao[0][0]/(confusao[0][0]+confusao[0][1]),"\nMalignos: ",confusao[1][1]/(confusao[1][0]+confusao[1][1]))
 
 main()
