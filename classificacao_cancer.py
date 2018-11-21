@@ -7,6 +7,46 @@ import numpy as np
 from sklearn.neighbors import DistanceMetric
 from sklearn.metrics import confusion_matrix
 
+def distancia(dados, ponto):
+    modelo = DistanceMetric.get_metric('euclidean')
+    dist = modelo.pairwise(dados, ponto)
+    return dist
+
+def Menor_dist(dados, ponto):
+    dist = distancia(dados, ponto)
+    dist_menor = 1000000
+    for i in dist:
+        if i < dist_menor:
+            dist_menor = i
+    return dist_menor
+
+def dist_visinhos(dados, ponto, k):
+
+    dist = distancia(dados, ponto)
+    posicao = np.zeros(dist.shape[0]*dist.shape[1]).reshape(dist.shape[0],dist.shape[1])
+    for i in range(0, posicao.shape[0]):
+        posicao[i] = int(i)
+    dist_pos = np.concatenate((dist, posicao), axis=1)
+    dist_pont = [900000,0]
+    for i in range(0, dist_pos.shape[0]):
+        if(dist_pont[0] > dist_pos[i][0]):
+            dist_pont = dist_pos[i]
+    dist = distancia(dados, dados[int(dist_pont[1])].reshape(1,30))
+    dist = np.sort(dist,axis=0)
+    soma = 0
+    for i in range(1, k+1):
+        soma += dist[i]
+    dist_media = soma/k
+    if dist_pont[0] <= dist_media:
+        return True
+    return False
+    
+
+
+    
+
+
+
 def PegaDados():
     dados = np.loadtxt("cancer.data", delimiter=",") # pega o dataset
     label_bruto = open("cancer-label.data", 'r')
@@ -54,6 +94,7 @@ def main():
     dist_media = sum(dist.pairwise(benignos,centro))/benignos.shape[0]
 
     distancia = dist.pairwise(dados,centro)
+    #print(centro)
     rotulos = distancia
     for i in range(np.asarray(distancia).shape[0]):
         if(distancia[i] > dist_media):
@@ -67,5 +108,6 @@ def main():
     confusao = confusion_matrix(labels.ravel(), rotulos)
 
     print("acuracia: ",acuracia, "\nConfusao: \n", confusao,"\nBenignos: ",confusao[0][0]/(confusao[0][0]+confusao[0][1]),"\nMalignos: ",confusao[1][1]/(confusao[1][0]+confusao[1][1]))
+    dist_visinhos(dados, dados[6].reshape(1,30), 3)
 
 main()
